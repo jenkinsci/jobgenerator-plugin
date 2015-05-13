@@ -317,7 +317,7 @@ public class JobGenerator extends Project<JobGenerator, GeneratorRun>
         }
  
         public FormValidation doCheckCustomWorkspace(
-                @QueryParameter(value="customWorkspace.directory") String customWorkspace){
+                @QueryParameter(value="customWorkspace") String customWorkspace){
             if(Util.fixEmptyAndTrim(customWorkspace)==null)
                 return FormValidation.error(
                               Messages.JobGenerator_CustomWorkspaceEmpty());
