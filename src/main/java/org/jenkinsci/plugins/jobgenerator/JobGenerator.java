@@ -70,7 +70,6 @@ public class JobGenerator extends Project<JobGenerator, GeneratorRun>
     private transient boolean processThisJobOnly = false;
     private transient boolean disableJobs = false;
     private transient boolean initiator = false;
-    private transient String customWorkspace = null;
     private String generatedJobName = "";
     private String generatedDisplayJobName = "";
     private boolean autoRunJob = false;
@@ -260,14 +259,6 @@ public class JobGenerator extends Project<JobGenerator, GeneratorRun>
         this.autoRunJob = value;
     }
 
-    public String getCustomWorkspace() {
-        return this.customWorkspace;
-    }
-
-    public void setCustomWorkspace(String customWorkspace) {
-        this.customWorkspace= Util.fixEmptyAndTrim(customWorkspace);
-    }
-
     public boolean getProcessThisJobOnly(){
         return this.processThisJobOnly;
     }
@@ -316,15 +307,6 @@ public class JobGenerator extends Project<JobGenerator, GeneratorRun>
             return FormValidation.validateRequired(value);
         }
  
-        public FormValidation doCheckCustomWorkspace(
-                @QueryParameter(value="customWorkspace.directory") String customWorkspace){
-            if(Util.fixEmptyAndTrim(customWorkspace)==null)
-                return FormValidation.error(
-                              Messages.JobGenerator_CustomWorkspaceEmpty());
-            else
-                return FormValidation.ok();
-        }
-
         public String getDefaultEntriesPage(){
             return getViewPage(FreeStyleProject.class,
                                "configure-entries.jelly");
