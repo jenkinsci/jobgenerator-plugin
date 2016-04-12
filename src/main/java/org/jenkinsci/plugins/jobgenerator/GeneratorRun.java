@@ -41,8 +41,6 @@ import hudson.plugins.parameterizedtrigger.AbstractBuildParameters.DontTriggerEx
 import hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig;
 import hudson.plugins.parameterizedtrigger.BuildTrigger;
 import hudson.plugins.parameterizedtrigger.BuildTriggerConfig;
-import hudson.plugins.parameterizedtrigger.TriggerBuilder;
-import hudson.tasks.BuildStep;
 import hudson.util.XStream2;
 
 import java.io.ByteArrayInputStream;
@@ -73,11 +71,7 @@ import org.dom4j.Text;
 import org.dom4j.Visitor;
 import org.dom4j.VisitorSupport;
 import org.dom4j.io.SAXReader;
-import org.jenkins_ci.plugins.flexible_publish.ConditionalPublisher;
-import org.jenkins_ci.plugins.flexible_publish.FlexiblePublisher;
 import org.jenkins_ci.plugins.run_condition.RunCondition;
-import org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder;
-import org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder;
 import org.jenkinsci.plugins.jobgenerator.actions.*;
 import org.jenkinsci.plugins.jobgenerator.parameters.*;
 
@@ -697,7 +691,7 @@ public class GeneratorRun extends Build<JobGenerator, GeneratorRun> {
 
         private void deleteJobs(JobGenerator job, boolean deleteChildren,
                                 List<String> deletedJobs){
-            int n = job.getLastSuccessfulBuild().getNumber();
+            int n = getLastMatchingGeneratedSuccessfulBuild(job);
             this.deleteJob(job, n, deletedJobs);
             if(!deleteChildren){
                 return;
@@ -727,6 +721,24 @@ public class GeneratorRun extends Build<JobGenerator, GeneratorRun> {
                     }
                 }
             }
+        }
+
+        private int getLastMatchingGeneratedSuccessfulBuild(JobGenerator job) {
+            final List<ParametersAction> params = getBuild().getActions(
+                    hudson.model.ParametersAction.class);
+            final String matchingName = getExpandedJobName(job, params);
+
+            GeneratorRun potentialSucceededBuild = job.getLastSuccessfulBuild();
+
+            while (potentialSucceededBuild != null) {
+                final String generatedJobName = getExpandedJobName(potentialSucceededBuild.getJobGenerator(),
+                        potentialSucceededBuild.getActions(hudson.model.ParametersAction.class));
+                if (matchingName.equals(generatedJobName) && potentialSucceededBuild.getAction(GeneratedJobBuildAction.class) != null) {
+                    return potentialSucceededBuild.getNumber();
+                }
+                potentialSucceededBuild = potentialSucceededBuild.getPreviousSuccessfulBuild();
+            }
+            throw new IllegalStateException("Cannot determine latest success generating build for job : " + matchingName);
         }
 
         private void deleteJob(JobGenerator job, int buildnum,
