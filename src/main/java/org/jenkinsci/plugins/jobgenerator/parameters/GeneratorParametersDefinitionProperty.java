@@ -63,16 +63,14 @@ public class GeneratorParametersDefinitionProperty
     private static final Logger LOGGER = Logger.getLogger(
                          GeneratorParametersDefinitionProperty.class.getName());
 
-    private transient List<ParameterDefinition> generatorParameterDefinitions;
-    private transient List<ParameterDefinition> globalParameterDefinitions;
-    private transient List<ParameterDefinition> localParameterDefinitions;
+    private transient List<ParameterDefinition> generatorParameterDefinitions= new ArrayList<ParameterDefinition>();
+    private transient List<ParameterDefinition> globalParameterDefinitions = new ArrayList<ParameterDefinition>();
+    private transient List<ParameterDefinition> localParameterDefinitions = new ArrayList<ParameterDefinition>();
 
     public GeneratorParametersDefinitionProperty(
             ParametersDefinitionProperty property,
             JobGenerator project) {
         this.owner = project;
-        this.generatorParameterDefinitions =
-                                          new ArrayList<ParameterDefinition>();
         List<ParameterDefinition> lpd = property.getParameterDefinitions();
         for(ParameterDefinition pd: lpd){
             if (GeneratorKeyValueParameterDefinition.class.isInstance(pd) ||
@@ -80,8 +78,6 @@ public class GeneratorParametersDefinitionProperty
                 this.generatorParameterDefinitions.add(pd);
             }
         }
-        this.globalParameterDefinitions = new ArrayList<ParameterDefinition>();
-        this.localParameterDefinitions = new ArrayList<ParameterDefinition>();
     }
 
     // required since setOwner is protected.
